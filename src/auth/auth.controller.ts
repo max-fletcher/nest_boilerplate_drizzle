@@ -1,5 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthPayloadDto } from './dto/auth.dto';
+import { Controller, Get, NotFoundException, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './guards/local.guard';
 import { Request } from 'express';
@@ -11,9 +10,10 @@ export class AuthController {
 
   @Post('api/v1/login')
   @UseGuards(LocalGuard) //using a custom guard that we made by extending local strategy
-  async login(@Body() authPayload: AuthPayloadDto){
+  async login(@Req() req: Request){
     console.log('Inside Auth Controller Login');
-    return this.authService.validateUser(authPayload)
+    // since the validate method in jwt strategy appends the user to the request
+    return req.user
   }
 
   @Get('api/v1/status')
