@@ -8,7 +8,7 @@ import { users } from '../db/schema';
 
 @Injectable()
 export class UsersService {
-  constructor( @Inject('DB_PROD') private databaseService: MySql2Database<typeof schema> ) {}
+  constructor( @Inject('DB_DEV') private databaseService: MySql2Database<typeof schema> ) {}
   async create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }

@@ -4,11 +4,12 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import * as schema from './db/schema';
 import { DrizzleMySqlModule } from '@knaadh/nestjs-drizzle-mysql2';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     DrizzleMySqlModule.register({
-    tag: 'DB_PROD',
+    tag: 'DB_DEV',
     mysql: {
       connection: 'client',
       config: {
@@ -20,7 +21,8 @@ import { DrizzleMySqlModule } from '@knaadh/nestjs-drizzle-mysql2';
     },
     config: { schema: { ...schema }, mode: 'default' },
     }),
-    UsersModule
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
