@@ -1,5 +1,6 @@
 import { ExecutionContext, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { DrizzleError } from "drizzle-orm";
 import { Observable } from "rxjs";
 
 @Injectable()

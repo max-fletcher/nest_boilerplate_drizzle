@@ -1,7 +1,7 @@
 1. store encrypted password instead of raw password
 2. user registration route
 3. Add rate limiter
-4. Add cors
-5. Add logger
-6. Add custom exception handler
+4. Add cors(DONE)
+5. Add logger(DONE)
+6. Add custom exception handler(DONE)
 7. See if its possible to make custom formatted responses & custom formatted errors
