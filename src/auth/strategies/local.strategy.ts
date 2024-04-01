@@ -16,7 +16,7 @@ export class LocalStategy extends PassportStrategy(Strategy){ // extending a str
     })
   }
 
-  // custom validate function that will either return a user or an exception(usually should resolves to a boolean)
+  // custom validate function that will either return a user or an exception(usually should resolve to a boolean)
   async validate(email: string, password: string){
     console.log('Inside LocalStrategy Validate');
     const user = await this.authService.validateUser({ email, password })

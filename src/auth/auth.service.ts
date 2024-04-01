@@ -1,10 +1,10 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { AuthPayloadDto } from './dto/auth.dto';
+import { Inject, Injectable } from '@nestjs/common';
 import * as schema from '../db/schema';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { eq } from 'drizzle-orm';
 import { users } from '../db/schema';
 import { JwtService } from '@nestjs/jwt';
+import { AuthPayloadDto } from './dto/auth.dto';
 
 // import { createCipheriv, randomBytes, scrypt } from 'crypto';
 // import { promisify } from 'util';

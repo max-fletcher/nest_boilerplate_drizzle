@@ -13,7 +13,7 @@ type MyResponseObj = {
     statusCode: number,
     timestamp: string,
     path: string,
-    response: string|object,
+    response: any,
 }
 
 @Catch()
@@ -40,8 +40,11 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     // Add more Prisma Error Types if you want
     if(exception instanceof HttpException){
       myResponseObj.statusCode = exception.getStatus()
-      myResponseObj.response = exception.getResponse()
-    } 
+      myResponseObj.response = {
+        message: exception.message || exception.getResponse()['message'],
+        error: exception.getResponse()['error']
+      }
+    }
     // LOGIC FOR HANDLING VALIDATION ERRORS
     // else if (exception instanceof .....){
     //   myResponseObj.statusCode = 422

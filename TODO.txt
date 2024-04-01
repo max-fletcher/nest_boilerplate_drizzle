@@ -1,6 +1,6 @@
 1. store encrypted password instead of raw password
 2. user registration route
-3. Add rate limiter
+3. Add rate limiter(DONE)
 4. Add cors(DONE)
 5. Add logger(DONE)
 6. Add custom exception handler(DONE)
