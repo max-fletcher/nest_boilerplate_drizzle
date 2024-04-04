@@ -22,7 +22,8 @@ import { CustomLoggerModule } from './custom-logger/custom-logger.module';
         database: "nest_boilerplate_drizzle",
       },
     },
-    config: { schema: { ...schema }, mode: 'default' },
+    // logger: true causes the terminal to log out the query being executed
+    config: { schema: { ...schema }, mode: 'default', logger: true },
     }),
     UsersModule,
     AuthModule,
@@ -32,7 +33,7 @@ import { CustomLoggerModule } from './custom-logger/custom-logger.module';
       // DEFAULT RATE LIMITERS. YOU CAN SKIP THIS USING USING @SkipThrottle OR OVERRIDE THIS USING @Throttle({ default: { ttl: ???, limit: ??? } })
       {
         ttl: 60000,
-        limit: 5
+        limit: 60
       },
     ]),
     CustomLoggerModule

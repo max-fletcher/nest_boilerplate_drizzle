@@ -3,7 +3,7 @@
 // It is worth noting that here, we are extending the "BaseExceptionFilter" as opposed to the "ExceptionFilter" (see docs
 // https://docs.nestjs.com/exception-filters#inheritance).
 // Hence, this will affect ALL exceptions throughout the app and not just a specific controller/method/function we are binding to.
-import { ArgumentsHost, HttpStatus, HttpException, Catch } from "@nestjs/common"
+import { ArgumentsHost, HttpStatus, HttpException, Catch, BadRequestException } from "@nestjs/common"
 import { BaseExceptionFilter } from "@nestjs/core";
 import { Request, Response } from 'express'
 import { CustomLoggerService } from "./custom-logger/custom-logger.service";
@@ -37,30 +37,42 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       response: ''
     }
 
-    // Add more Prisma Error Types if you want
     if(exception instanceof HttpException){
       myResponseObj.statusCode = exception.getStatus()
+      let msg
+      if(typeof(exception.getResponse()['message']) === 'string'){
+        msg = exception.getResponse()['message']
+      }
+      else if(typeof(exception.getResponse()['message']) === 'object'){
+        msg = exception.getResponse()['message'][0]
+      }
+      else{
+        msg = exception.message
+      }
+
       myResponseObj.response = {
-        message: exception.message || exception.getResponse()['message'],
+        message: msg,
         error: exception.getResponse()['error']
       }
+      // Log error data
+      this.logger.error(myResponseObj.response.message, AllExceptionsFilter.name)
     }
-    // LOGIC FOR HANDLING VALIDATION ERRORS
-    // else if (exception instanceof .....){
+    // LOGIC FOR HANDLING VALIDATION ERRORS(NOT VIABLE TO SCOPE IT OUT USING DRIZZLE. INSTEAD, USED SOME CHECKS ABOVE)
+    // else if (exception instanceof DrizzleError){
+    //   console.log('sick shit');
     //   myResponseObj.statusCode = 422
     //   myResponseObj.response = exception.message.replaceAll(/\n/g, ' ') // replace all the linebreaks
-    // } 
+    // }
     else {
       myResponseObj.statusCode = HttpStatus.INTERNAL_SERVER_ERROR
       myResponseObj.response = 'Internal Server Error'
+      // Log error data
+      this.logger.error(myResponseObj.response, AllExceptionsFilter.name)
     }
 
     response
       .status(myResponseObj.statusCode)
       .json(myResponseObj)
-
-    // Log error data
-    this.logger.error(myResponseObj.response, AllExceptionsFilter.name)
 
     // NOTE: THIS NEEDS TO BE IMPLEMENTED INSIDE main.ts FOR THIS TO WORK AS IT SHOULD
 

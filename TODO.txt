@@ -1,7 +1,18 @@
-1. store encrypted password instead of raw password
-2. user registration route
+1. store encrypted/hashed password instead of raw password(DONE)
+2. user registration route(DONE)
 3. Add rate limiter(DONE)
 4. Add cors(DONE)
 5. Add logger(DONE)
 6. Add custom exception handler(DONE)
-7. See if its possible to make custom formatted responses & custom formatted errors
+7. Use .env for secret & secretOrKey
+8. Catch Drizzle Errors/Exceptions
+
+FROM NODE BOILERPLATE MONGO
+1. Relations
+2. DB Transactions when disjointing relational data
+3. Authorization and Access Control(i.e roles and permissions)
+4. PDF/Invoice generation
+5. Nested Relations
+6. Pagination for getAll calls
+7. Scheduled Task
+8. Formatted responses
