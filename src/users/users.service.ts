@@ -3,18 +3,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as schema from '../db/schema';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { and, count, eq, ne } from 'drizzle-orm';
+import { and, count, eq, like, ne, or } from 'drizzle-orm';
 import { users } from '../db/schema';
 import * as bcrypt from 'bcrypt';
 import { PaginationService } from 'src/pagination/pagination.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>,@Inject(PaginationService) private paginationService: PaginationService) {}
+  constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>, @Inject(PaginationService) private paginationService: PaginationService) {}
 
   async create(createUserDto: CreateUserDto) {
-    console.log('Create User Service');
-
     // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, createUserDto.name));
 
@@ -36,43 +34,89 @@ export class UsersService {
     }
   }
 
-  async findAll(limit, offset) {
-    const data2 = await this.paginationService.paginate(this.databaseService.query.users, limit, offset)
-
-    return {
-      status: 'success',
-      message: 'All users',
-      data: data2,
+  async findAll(req, currentPage, limit, search) {
+    const builder = this.databaseService.query.users
+    const columns = {
+      id: true,
+      name: true,
+      email: true,
+      created_at: true
+    }
+    let options
+    // append where & search constraints
+    if(search.length){
+      options = {
+        where: and(
+          or(
+            like(users.name, '%'+search+'%'),
+            like(users.email, '%'+search+'%')
+          )
+        )
+      }
     }
 
-
-
-    // This is how you select specific fields. You can also use the other syntax shown below.
-    const data = await this.databaseService.query.users.findMany({
-                          columns: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            created_at: true
-                          },
-                          limit: limit,
-                          offset: offset
-                        });
-
-    // Another way to fetch all data
-    // const data = await this.databaseService
-    //                   .select({
-    //                     id: users.id,
-    //                     name: users.name,
-    //                     email: users.email,
-    //                     created_at: users.created_at 
-    //                   })
-    //                   .from(users);
+    const {
+      data,
+      pageDataCount,
+      totalDataCount,
+      totalPages,
+      next, 
+      previous 
+    } = await this.paginationService.paginate(req, builder, users, options, currentPage, limit, columns, search)
 
     return {
       status: 'success',
       message: 'All users',
-      data: data,
+      response: {
+        pageDataCount,
+        totalDataCount,
+        totalPages,
+        next, 
+        previous,
+        data
+      },
+    }
+  }
+
+  async findAll2(req, currentPage, limit, search) {
+    const select = {
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      created_at: users.created_at 
+    }
+    
+    let where
+    // append where & search constraints
+    if(search.length){
+      where = and(
+                or(
+                  like(users.name, '%'+search+'%'),
+                  like(users.email, '%'+search+'%')
+                )
+              )
+    }
+
+    const {
+      data,
+      pageDataCount,
+      totalDataCount,
+      totalPages,
+      next, 
+      previous 
+    } = await this.paginationService.paginate2(req, users, where, currentPage, limit, select, search)
+
+    return {
+      status: 'success',
+      message: 'All users',
+      response: {
+        pageDataCount,
+        totalDataCount,
+        totalPages,
+        next, 
+        previous,
+        data
+      },
     }
   }
 
@@ -96,27 +140,6 @@ export class UsersService {
       message: 'User found',
       data: findUser,
     }
-
-    // Another way to fetch data but this fetches an array so you need to use .length and array index (i.e findUser[0]) to be properly used
-    // const findUser = await this.databaseService
-    //                         .select({ 
-    //                           id: users.id,
-    //                           name: users.name,
-    //                           email: users.email,
-    //                           created_at: users.created_at 
-    //                         })
-    //                         .from(users)
-    //                         .where(eq(users.id, id))
-    //                         .limit(1);
-
-    // if(findUser.length === 0)
-    //   throw new NotFoundException('User not found.')
-
-    // return {
-    //   status: 'success',
-    //   message: 'User found',
-    //   data: findUser[0],
-    // }
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -130,7 +153,11 @@ export class UsersService {
     if(exists[0].count)
       throw new BadRequestException('User with this name already exists.');
     exists = await this.databaseService.select({ count: count() }).from(users)
-                    .where(and(eq(users.email, updateUserDto.email), ne(users.id, id)));
+                    .where(
+                      and(
+                        eq(users.email, updateUserDto.email), ne(users.id, id)
+                      )
+                    );
     if(exists[0].count)
       throw new BadRequestException('User with this email already exists.');
 
@@ -159,4 +186,28 @@ export class UsersService {
       message: 'User deleted'
     }
   }
+
+  // TODO: 2 WAYS OF FETCHING DATA
+  // const data = await this.databaseService.query.users.findMany({
+  //                       columns: {
+  //                         id: true,
+  //                         name: true,
+  //                         email: true,
+  //                         created_at: true
+  //                       },
+  //                       limit: limit,
+  //                       offset: offset
+  //                     });
+
+  // // Another way to fetch all data
+  // const data = await this.databaseService
+  //                   .select({
+  //                     id: users.id,
+  //                     name: users.name,
+  //                     email: users.email,
+  //                     created_at: users.created_at 
+  //                   })
+  //                   .from(users)
+  //                   .limit(10)
+  //                   .offset(0);
 }
