@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from "class-validator"
-export class AuthPayloadDto{
+export class AuthPayloadDto {
   @IsString()
   @IsNotEmpty()
   @IsEmail() // All decorators from class-validator is declared above the field like this

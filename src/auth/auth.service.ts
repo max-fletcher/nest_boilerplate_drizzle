@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as schema from '../db/schema';
 import { MySql2Database } from 'drizzle-orm/mysql2';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { users } from '../db/schema';
 import { JwtService } from '@nestjs/jwt';
 import { AuthPayloadDto } from './dto/auth.dto';
@@ -16,11 +16,13 @@ export class AuthService {
 
   async register(userData: RegisterDto){
     console.log('Inside Auth Service register');
-    let exists = await this.databaseService.query.users.findFirst({ where: eq(users.name, userData.name) });
-    if(exists)
+
+    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
+    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, userData.name));
+    if(exists[0].count)
       throw new BadRequestException('User with this name already exists.');
-    exists = await this.databaseService.query.users.findFirst({ where: eq(users.email, userData.email) });
-    if(exists)
+    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, userData.email));
+    if(exists[0].count)
       throw new BadRequestException('User with this email already exists.');
 
     userData.password = await bcrypt.hash(userData.password, 10);
