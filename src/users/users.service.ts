@@ -6,10 +6,11 @@ import { MySql2Database } from 'drizzle-orm/mysql2';
 import { and, count, eq, ne } from 'drizzle-orm';
 import { users } from '../db/schema';
 import * as bcrypt from 'bcrypt';
+import { PaginationService } from 'src/pagination/pagination.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>) {}
+  constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>,@Inject(PaginationService) private paginationService: PaginationService) {}
 
   async create(createUserDto: CreateUserDto) {
     console.log('Create User Service');
@@ -36,6 +37,16 @@ export class UsersService {
   }
 
   async findAll(limit, offset) {
+    const data2 = await this.paginationService.paginate(this.databaseService.query.users, limit, offset)
+
+    return {
+      status: 'success',
+      message: 'All users',
+      data: data2,
+    }
+
+
+
     // This is how you select specific fields. You can also use the other syntax shown below.
     const data = await this.databaseService.query.users.findMany({
                           columns: {
@@ -50,7 +61,7 @@ export class UsersService {
 
     // Another way to fetch all data
     // const data = await this.databaseService
-    //                   .select({ 
+    //                   .select({
     //                     id: users.id,
     //                     name: users.name,
     //                     email: users.email,
