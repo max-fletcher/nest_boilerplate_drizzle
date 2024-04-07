@@ -1,15 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { storeUserWithPostDto } from './dto/create-user-with-post.dto';
 
 @Controller('api/v1/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body(new ValidationPipe({whitelist: true})) createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  // Strictly for testing DB transactions
+  @Post('store_user_with_post')
+  testing_db_transactions(@Body(new ValidationPipe({whitelist: true})) storeUserWithPostDto: storeUserWithPostDto) {
+    return this.usersService.storeUserWithPost(storeUserWithPostDto);
   }
 
   @Get()
@@ -28,7 +35,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: string, @Body(new ValidationPipe({whitelist: true})) updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 

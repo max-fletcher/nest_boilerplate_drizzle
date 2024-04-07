@@ -1,10 +1,10 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as schema from '../db/schema';
-import { MySql2Database, drizzle } from 'drizzle-orm/mysql2';
+import { MySql2Database } from 'drizzle-orm/mysql2';
 import { and, count, eq, like, ne, or } from 'drizzle-orm';
-import { users } from '../db/schema';
+import { users, posts } from '../db/schema';
 import * as bcrypt from 'bcrypt';
 import { PaginationService } from 'src/pagination/pagination.service';
 
@@ -29,8 +29,59 @@ export class UsersService {
 
     return {
       status: 'success',
-      message: 'User created successful',
+      message: 'User created successfully',
       data: findUser,
+    }
+  }
+
+  // Strictly for testing DB transactions
+  async storeUserWithPost(testingDbTransactionsDto) {
+
+    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
+    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, testingDbTransactionsDto.name));
+
+    if(exists[0].count)
+      throw new BadRequestException('User with this name already exists.');
+    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, testingDbTransactionsDto.email));
+    if(exists[0].count)
+      throw new BadRequestException('User with this email already exists.');
+
+    let createdUser
+    let createdPost
+    const success: boolean = await this.databaseService.transaction(async (tx) => {
+      testingDbTransactionsDto.password = await bcrypt.hash(testingDbTransactionsDto.password, 10);
+      createdUser = await tx.insert(users).values({
+        name: testingDbTransactionsDto.name,
+        email: testingDbTransactionsDto.email,
+        password: testingDbTransactionsDto.password,
+      });
+
+      createdPost = await tx.insert(posts).values({
+        user_id: createdUser[0].insertId,
+        title: testingDbTransactionsDto.title,
+        text: testingDbTransactionsDto.text,
+      });
+
+      console.log(createdUser, createdPost);
+
+      return true
+    });
+
+    if(!success){
+      throw new InternalServerErrorException('Something went wrong. Please try again.')
+    }
+
+    const userWithPost = await this.databaseService.query.users.findFirst({ 
+                            where: eq(users.id, createdUser[0].insertId),
+                            with: { 
+                              posts: true 
+                            } 
+                          });
+
+    return {
+      status: 'success',
+      message: 'User with post created successfully',
+      data: userWithPost,
     }
   }
 
@@ -58,7 +109,11 @@ export class UsersService {
 
     //  relationships
     const relations = {
-      posts: true
+      posts: {
+        with: {
+          comments: true
+        }
+      }
     }
 
     const {
@@ -133,7 +188,7 @@ export class UsersService {
 
     return {
       status: 'success',
-      message: 'User updated',
+      message: 'User updated successfully',
       data: findUser,
     }
   }
@@ -147,7 +202,7 @@ export class UsersService {
 
     return {
       status: 'success',
-      message: 'User deleted'
+      message: 'User deleted successfully'
     }
   }
 

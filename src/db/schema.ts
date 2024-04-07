@@ -26,9 +26,25 @@ export const posts = mysqlTable('posts', {
   updated_at: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`),
 });
 
-export const postsRelations = relations(posts, ({ one }) => ({
+export const postsRelations = relations(posts, ({ one, many }) => ({
   user: one(users, {
     fields: [posts.user_id],
     references: [users.id]
+  }),
+  comments: many(comments),
+}));
+
+export const comments = mysqlTable('comments', {
+  id: bigint('id', { mode: 'number', unsigned: true }).primaryKey().autoincrement(),
+  post_id: bigint('post_id', { mode: 'number', unsigned: true }).references(() => posts.id, {onDelete: 'cascade'}).notNull(),
+  text: varchar('text', { length: 300 }).notNull(),
+  created_at: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
+  updated_at: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`),
+});
+
+export const commentsRelations = relations(comments, ({ one }) => ({
+  post: one(posts, {
+    fields: [comments.post_id],
+    references: [posts.id]
   }),
 }));
