@@ -8,11 +8,11 @@
 8. Catch Drizzle Errors/Exceptions
 
 FROM NODE BOILERPLATE MONGO
-1. Relations
+1. Relations(DONE)
 2. DB Transactions when disjointing relational data
 3. Authorization and Access Control(i.e roles and permissions)
 4. PDF/Invoice generation
 5. Nested Relations
-6. Pagination for getAll calls
+6. Pagination for getAll calls(DONE)
 7. Scheduled Task
 8. Formatted responses

@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as schema from '../db/schema';
-import { MySql2Database } from 'drizzle-orm/mysql2';
+import { MySql2Database, drizzle } from 'drizzle-orm/mysql2';
 import { and, count, eq, like, ne, or } from 'drizzle-orm';
 import { users } from '../db/schema';
 import * as bcrypt from 'bcrypt';
@@ -43,6 +43,7 @@ export class UsersService {
       created_at: true
     }
     let options
+
     // append where & search constraints
     if(search.length){
       options = {
@@ -55,46 +56,9 @@ export class UsersService {
       }
     }
 
-    const {
-      data,
-      pageDataCount,
-      totalDataCount,
-      totalPages,
-      next, 
-      previous 
-    } = await this.paginationService.paginate(req, builder, users, options, currentPage, limit, columns, search)
-
-    return {
-      status: 'success',
-      message: 'All users',
-      response: {
-        pageDataCount,
-        totalDataCount,
-        totalPages,
-        next, 
-        previous,
-        data
-      },
-    }
-  }
-
-  async findAll2(req, currentPage, limit, search) {
-    const select = {
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      created_at: users.created_at 
-    }
-    
-    let where
-    // append where & search constraints
-    if(search.length){
-      where = and(
-                or(
-                  like(users.name, '%'+search+'%'),
-                  like(users.email, '%'+search+'%')
-                )
-              )
+    //  relationships
+    const relations = {
+      posts: true
     }
 
     const {
@@ -104,7 +68,7 @@ export class UsersService {
       totalPages,
       next, 
       previous 
-    } = await this.paginationService.paginate2(req, users, where, currentPage, limit, select, search)
+    } = await this.paginationService.paginate(req, builder, users, options, relations, currentPage, limit, columns, search)
 
     return {
       status: 'success',

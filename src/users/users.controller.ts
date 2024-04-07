@@ -22,16 +22,6 @@ export class UsersController {
     return this.usersService.findAll(req, currentPage, limit, search);
   }
 
-  @Get()
-  findAll2(
-    @Req() req: Request,
-    @Query('currentPage', new DefaultValuePipe(0), ParseIntPipe) currentPage: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query('search', new DefaultValuePipe('')) search: string,
-  ) {
-    return this.usersService.findAll2(req, currentPage, limit, search);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);

@@ -3,7 +3,7 @@
 // It is worth noting that here, we are extending the "BaseExceptionFilter" as opposed to the "ExceptionFilter" (see docs
 // https://docs.nestjs.com/exception-filters#inheritance).
 // Hence, this will affect ALL exceptions throughout the app and not just a specific controller/method/function we are binding to.
-import { ArgumentsHost, HttpStatus, HttpException, Catch, BadRequestException } from "@nestjs/common"
+import { ArgumentsHost, HttpStatus, HttpException, Catch } from "@nestjs/common"
 import { BaseExceptionFilter } from "@nestjs/core";
 import { Request, Response } from 'express'
 import { CustomLoggerService } from "./custom-logger/custom-logger.service";
@@ -59,7 +59,6 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     }
     // LOGIC FOR HANDLING VALIDATION ERRORS(NOT VIABLE TO SCOPE IT OUT USING DRIZZLE. INSTEAD, USED SOME CHECKS ABOVE)
     // else if (exception instanceof DrizzleError){
-    //   console.log('sick shit');
     //   myResponseObj.statusCode = 422
     //   myResponseObj.response = exception.message.replaceAll(/\n/g, ' ') // replace all the linebreaks
     // }
