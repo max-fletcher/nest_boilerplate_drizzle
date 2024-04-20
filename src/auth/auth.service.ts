@@ -8,11 +8,12 @@ import { AuthPayloadDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { validateJWTUserDTO } from './dto/validateJWTUser.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   // IMPORTING DATABASE AND JWT SERVICE
-  constructor( @Inject('DB_DEV') private readonly databaseService: MySql2Database<typeof schema>, private jwtService: JwtService ) {}
+  constructor( @Inject('DB_DEV') private readonly databaseService: MySql2Database<typeof schema>, private jwtService: JwtService, private configService: ConfigService ) {}
 
   async register(userData: RegisterDto){
     console.log('Inside Auth Service register');
@@ -49,7 +50,8 @@ export class AuthService {
     return {
       status: 'success',
       message: 'Login Successful',
-      access_token: this.jwtService.sign(user)
+      access_token: this.jwtService.sign(user, { expiresIn: this.configService.getOrThrow('JWT_EXPIRATION_TIME') }),
+      refresh_token: this.jwtService.sign(user, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') })
     } // returns the JWT
   }
 
@@ -65,12 +67,13 @@ export class AuthService {
 
 
 
-  // async refreshToken(payload: any) {
-	// 	const user = { id: payload.id, name: payload.name, email: payload.email };
-	// 	return {
-	// 		access_token: this.jwtService.sign(user),
-	// 	};
-	// }
+  async refreshToken(payload: any) {
+		const user = { id: payload.id, name: payload.name, email: payload.email };
+    console.log(payload, 'service payload', user, 'service user');
+		return {
+			access_token: this.jwtService.sign(user),
+		};
+	}
 
 
 

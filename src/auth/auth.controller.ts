@@ -4,7 +4,7 @@ import { LocalGuard } from './guards/local.guard';
 import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { RegisterDto } from './dto/register.dto';
-// import { RefreshJwtAuthGuard } from './guards/refreshToken.guard';
+import { RefreshJwtAuthGuard } from './guards/refreshToken.guard';
 
 @Controller()
 export class AuthController {
@@ -33,11 +33,11 @@ export class AuthController {
 
 
 
-	// @UseGuards(RefreshJwtAuthGuard)
-	// @Post('api/v1/refresh')
-	// async refreshToken(@Req() req) {
-	// 	return this.authService.refreshToken(req.user);
-	// }
+	@Post('api/v1/refresh')
+	@UseGuards(RefreshJwtAuthGuard)
+	async refreshToken(@Req() req) {
+		return this.authService.refreshToken(req.user);
+	}
 
 
 
