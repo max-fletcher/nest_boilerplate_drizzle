@@ -4,6 +4,7 @@ import { LocalGuard } from './guards/local.guard';
 import { Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { RegisterDto } from './dto/register.dto';
+// import { RefreshJwtAuthGuard } from './guards/refreshToken.guard';
 
 @Controller()
 export class AuthController {
@@ -24,11 +25,19 @@ export class AuthController {
   }
 
   @Get('api/v1/status')
-  @UseGuards(JwtAuthGuard) //using a custom guard that we made by extending jwt strategy
+  @UseGuards(JwtAuthGuard) //using guard to protect this route
   status(@Req() req: Request){
     console.log('Inside Auth Controller Status');
     return req.user
   }
+
+
+
+	// @UseGuards(RefreshJwtAuthGuard)
+	// @Post('api/v1/refresh')
+	// async refreshToken(@Req() req) {
+	// 	return this.authService.refreshToken(req.user);
+	// }
 
 
 

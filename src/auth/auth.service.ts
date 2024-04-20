@@ -33,7 +33,7 @@ export class AuthService {
     return {
       status: 'success',
       message: 'Register Successful',
-      jwt: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }),
+      access_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }),
     } // returns the JWT
   }
 
@@ -49,7 +49,7 @@ export class AuthService {
     return {
       status: 'success',
       message: 'Login Successful',
-      jwt: this.jwtService.sign(user)
+      access_token: this.jwtService.sign(user)
     } // returns the JWT
   }
 
@@ -62,6 +62,15 @@ export class AuthService {
     return findUser
   }
 
+
+
+
+  // async refreshToken(payload: any) {
+	// 	const user = { id: payload.id, name: payload.name, email: payload.email };
+	// 	return {
+	// 		access_token: this.jwtService.sign(user),
+	// 	};
+	// }
 
 
 

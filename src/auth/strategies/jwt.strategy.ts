@@ -2,6 +2,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "../auth.service";
+import { ConfigService } from '@nestjs/config';
 
 // THIS CLASS IS FOR VERIFYING TOKENS
 
@@ -9,11 +10,11 @@ import { AuthService } from "../auth.service";
 @Injectable()
 export class JwtStategy extends PassportStrategy(Strategy){ // extending a strategy so we can add functionality to it
   // used to call the constructor of its parent class to access the parent's properties and methods
-  constructor(private authService: AuthService){
-    super({ 
+  constructor(private authService: AuthService, private configService: ConfigService){
+    super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // this defines that we will extract the token from auth header as bearer token
       ignoreExpiration: false, // if set to true, will ignore the expiration datetime of the JWT
-      secretOrKey: 'abc123', // This will be used to decrypt the JWT. Should have the same value as 'secret' in auth.module.ts "JwtModule.register" fn
+      secretOrKey: configService.getOrThrow('JWT_SECRET'), // This will be used to decrypt the JWT. Should have the same value as 'secret' in auth.module.ts "JwtModule.register" fn
       usernameField: 'email' // defines that should be used of "username" as  prmary field to identify user
     })
   }

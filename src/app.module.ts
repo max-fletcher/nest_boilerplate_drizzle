@@ -8,9 +8,11 @@ import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomLoggerModule } from './custom-logger/custom-logger.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     DrizzleMySqlModule.register({
     tag: 'DB_DEV',
     mysql: {

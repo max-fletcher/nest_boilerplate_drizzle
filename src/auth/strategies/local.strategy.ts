@@ -11,7 +11,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 export class LocalStategy extends PassportStrategy(Strategy){ // extending a strategy so we can add functionality to it
   // used to call the constructor of its parent class to access the parent's properties and methods
   constructor(private authService: AuthService){
-    super({ 
+    super({
       usernameField: 'email' // defines that should be used of "username" as  prmary field to identify user
     })
   }
