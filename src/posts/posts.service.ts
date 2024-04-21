@@ -82,20 +82,16 @@ export class PostsService {
                             });
 
     if(!findPost) 
-      throw new NotFoundException('User not found.')
+      throw new NotFoundException('Post not found.')
 
     return {
       status: 'success',
-      message: 'User found',
+      message: 'Post found',
       data: findPost,
     }
   }
 
   async create(createPostDto: CreatePostDto) {
-    let exists = await this.databaseService.select({ count: count() }).from(posts).where(eq(posts.id, createPostDto.user_id));
-    if(!exists[0].count)
-      throw new BadRequestException('User with this id not found exists.');
-
     const result = await this.databaseService.insert(posts).values(createPostDto);
     const findPost = await this.databaseService.query.posts.findFirst({ where: eq(posts.id, result[0].insertId) });
 
@@ -106,12 +102,12 @@ export class PostsService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdatePostDto) {
+  async update(id: number, updatePostDto: UpdatePostDto) {
     let exists = await this.databaseService.select({ count: count() }).from(posts).where(eq(posts.id, id));
     if(!exists[0].count)
       throw new BadRequestException('Post not found.');
 
-    const result = await this.databaseService.update(posts).set(updateUserDto).where(eq(posts.id, id));
+    const result = await this.databaseService.update(posts).set(updatePostDto).where(eq(posts.id, id));
     const findPost = await this.databaseService.query.posts.findFirst({ where: eq(posts.id, id) });
 
     return {
@@ -124,13 +120,13 @@ export class PostsService {
   async remove(id: number) {
     let exists = await this.databaseService.select({ count: count() }).from(posts).where(eq(posts.id, id));
     if(!exists[0].count)
-      throw new BadRequestException('User not found.');
+      throw new BadRequestException('Post not found.');
 
     const result = await this.databaseService.delete(posts).where(eq(posts.id, id));
 
     return {
       status: 'success',
-      message: 'User deleted successfully'
+      message: 'Post deleted successfully'
     }
   }
 
