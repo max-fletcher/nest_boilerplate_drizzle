@@ -24,7 +24,6 @@ export class JwtStategy extends PassportStrategy(Strategy, 'jwt-strategy'){ // e
   // It is here you can check if this JWT matches any database records i.e username and email, else throw an error
   async validate(payload: any){
     console.log('Inside JWTStrategy Validate')
-    console.log('payload', payload)
 
     // validating user by seeing if a user with this email & name exists in database
     const user = await this.authService.validateJWTUser(payload)

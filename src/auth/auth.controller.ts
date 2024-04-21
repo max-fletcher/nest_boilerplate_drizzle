@@ -6,17 +6,17 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshJwtAuthGuard } from './guards/refreshToken.guard';
 
-@Controller()
+@Controller('api/v1')
 export class AuthController {
   constructor(private authService: AuthService){}
 
-  @Post('api/v1/register')
+  @Post('register')
   async register(@Body(new ValidationPipe({whitelist: true})) body: RegisterDto){
     console.log('Inside Auth Controller Register');
     return this.authService.register(body)
   }
 
-  @Post('api/v1/login')
+  @Post('login')
   @UseGuards(LocalGuard) //using a custom guard that we made by extending local strategy
   login(@Req() req: Request){
     console.log('Inside Auth Controller Login');
@@ -24,21 +24,21 @@ export class AuthController {
     return req.user
   }
 
-  @Get('api/v1/status')
+  @Get('status')
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   status(@Req() req: Request){
     console.log('Inside Auth Controller Status');
     return req.user
   }
 
-	@Post('api/v1/refresh')
+	@Post('refresh')
 	@UseGuards(RefreshJwtAuthGuard)
 	async refreshToken(@Req() req) {
 		return this.authService.refreshToken(req.user);
 	}
 
   // FOR TESTING ONLY
-  @Get('api/v1/false_jwt')
+  @Get('false_jwt')
   falseJWT(@Body() body){
     console.log('Inside Auth Controller falseJWT');
     return this.authService.falseJWT(body)

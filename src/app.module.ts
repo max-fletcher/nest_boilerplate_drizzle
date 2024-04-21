@@ -9,6 +9,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CustomLoggerModule } from './custom-logger/custom-logger.module';
 import { ConfigModule } from '@nestjs/config';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UsersModule,
     AuthModule,
+    PostsModule,
     // Defining throttle/rate-limit logic globally. You can define multiple rate-limits here each with their own set of names and 
     // apply them to different routes(see docs).
     ThrottlerModule.forRoot([
@@ -38,7 +40,7 @@ import { ConfigModule } from '@nestjs/config';
         limit: 60
       },
     ]),
-    CustomLoggerModule
+    CustomLoggerModule,
   ],
   controllers: [AppController],
   providers: [

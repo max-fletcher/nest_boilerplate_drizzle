@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as schema from '../db/schema';
 import { MySql2Database } from 'drizzle-orm/mysql2';
@@ -11,79 +11,6 @@ import { PaginationService } from 'src/pagination/pagination.service';
 @Injectable()
 export class UsersService {
   constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>, @Inject(PaginationService) private paginationService: PaginationService) {}
-
-  async create(createUserDto: CreateUserDto) {
-    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
-    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, createUserDto.name));
-
-    if(exists[0].count)
-      throw new BadRequestException('User with this name already exists.');
-    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, createUserDto.email));
-    if(exists[0].count)
-      throw new BadRequestException('User with this email already exists.');
-
-    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-
-    const result = await this.databaseService.insert(users).values(createUserDto);
-    const findUser = await this.databaseService.query.users.findFirst({ where: eq(users.id, result[0].insertId) });
-
-    return {
-      status: 'success',
-      message: 'User created successfully',
-      data: findUser,
-    }
-  }
-
-  // Strictly for testing DB transactions
-  async storeUserWithPost(testingDbTransactionsDto) {
-
-    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
-    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, testingDbTransactionsDto.name));
-
-    if(exists[0].count)
-      throw new BadRequestException('User with this name already exists.');
-    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, testingDbTransactionsDto.email));
-    if(exists[0].count)
-      throw new BadRequestException('User with this email already exists.');
-
-    let createdUser
-    let createdPost
-    const success: boolean = await this.databaseService.transaction(async (tx) => {
-      testingDbTransactionsDto.password = await bcrypt.hash(testingDbTransactionsDto.password, 10);
-      createdUser = await tx.insert(users).values({
-        name: testingDbTransactionsDto.name,
-        email: testingDbTransactionsDto.email,
-        password: testingDbTransactionsDto.password,
-      });
-
-      createdPost = await tx.insert(posts).values({
-        user_id: createdUser[0].insertId,
-        title: testingDbTransactionsDto.title,
-        text: testingDbTransactionsDto.text,
-      });
-
-      console.log(createdUser, createdPost);
-
-      return true
-    });
-
-    if(!success){
-      throw new InternalServerErrorException('Something went wrong. Please try again.')
-    }
-
-    const userWithPost = await this.databaseService.query.users.findFirst({ 
-                            where: eq(users.id, createdUser[0].insertId),
-                            with: { 
-                              posts: true 
-                            } 
-                          });
-
-    return {
-      status: 'success',
-      message: 'User with post created successfully',
-      data: userWithPost,
-    }
-  }
 
   async findAll(req, currentPage, limit, search) {
     const builder = this.databaseService.query.users
@@ -158,6 +85,77 @@ export class UsersService {
       status: 'success',
       message: 'User found',
       data: findUser,
+    }
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
+    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, createUserDto.name));
+    if(exists[0].count)
+      throw new BadRequestException('User with this name already exists.');
+    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, createUserDto.email));
+    if(exists[0].count)
+      throw new BadRequestException('User with this email already exists.');
+
+    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
+
+    const result = await this.databaseService.insert(users).values(createUserDto);
+    const findUser = await this.databaseService.query.users.findFirst({ where: eq(users.id, result[0].insertId) });
+
+    return {
+      status: 'success',
+      message: 'User created successfully',
+      data: findUser,
+    }
+  }
+
+  // Strictly for testing DB transactions
+  async storeUserWithPost(testingDbTransactionsDto) {
+
+    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
+    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, testingDbTransactionsDto.name));
+    if(exists[0].count)
+      throw new BadRequestException('User with this name already exists.');
+    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, testingDbTransactionsDto.email));
+    if(exists[0].count)
+      throw new BadRequestException('User with this email already exists.');
+
+    let createdUser
+    let createdPost
+    const success: boolean = await this.databaseService.transaction(async (tx) => {
+      testingDbTransactionsDto.password = await bcrypt.hash(testingDbTransactionsDto.password, 10);
+      createdUser = await tx.insert(users).values({
+        name: testingDbTransactionsDto.name,
+        email: testingDbTransactionsDto.email,
+        password: testingDbTransactionsDto.password,
+      });
+
+      createdPost = await tx.insert(posts).values({
+        user_id: createdUser[0].insertId,
+        title: testingDbTransactionsDto.title,
+        text: testingDbTransactionsDto.text,
+      });
+
+      console.log(createdUser, createdPost);
+
+      return true
+    });
+
+    if(!success){
+      throw new InternalServerErrorException('Something went wrong. Please try again.')
+    }
+
+    const userWithPost = await this.databaseService.query.users.findFirst({ 
+                            where: eq(users.id, createdUser[0].insertId),
+                            with: { 
+                              posts: true 
+                            } 
+                          });
+
+    return {
+      status: 'success',
+      message: 'User with post created successfully',
+      data: userWithPost,
     }
   }
 

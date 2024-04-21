@@ -59,6 +59,7 @@ export class AuthService {
   async validateJWTUser({ name, email }: validateJWTUserDTO ){
     console.log('Inside Auth Service validateJWTUser');
     // users was imported as * above
+
     const findUser = await this.databaseService.query.users.findFirst({ where: and(eq(users.name, name), eq(users.email, email)) });
     if(!findUser) return null;
 
