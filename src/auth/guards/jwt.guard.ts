@@ -3,7 +3,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { Observable } from "rxjs";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt'){
+export class JwtAuthGuard extends AuthGuard('jwt-strategy'){
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
       console.log('Inside JwtAuthGuard');
       // additional logic that needs to be handled before request reaches server

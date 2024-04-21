@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 
 // makes it so that this service can be imported or injected(i.e dependency injection) into another class's constructor
 @Injectable()
-export class JwtStategy extends PassportStrategy(Strategy){ // extending a strategy so we can add functionality to it
+export class JwtStategy extends PassportStrategy(Strategy, 'jwt-strategy'){ // extending a strategy so we can add functionality to it
   // used to call the constructor of its parent class to access the parent's properties and methods
   constructor(private authService: AuthService, private configService: ConfigService){
     super({

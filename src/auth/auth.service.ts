@@ -34,7 +34,8 @@ export class AuthService {
     return {
       status: 'success',
       message: 'Register Successful',
-      access_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }),
+      access_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }, { expiresIn: this.configService.getOrThrow('JWT_EXPIRATION_TIME') }),
+      refresh_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') })
     } // returns the JWT
   }
 
