@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { validateJWTUserDTO } from './dto/validateJWTUser.dto';
 import { ConfigService } from '@nestjs/config';
-
+import { validateRefreshJWTUserDTO } from './dto/validateRefreshJWTUser.dto';
 @Injectable()
 export class AuthService {
   // IMPORTING DATABASE AND JWT SERVICE
@@ -57,7 +57,7 @@ export class AuthService {
   }
 
   async validateJWTUser({ name, email }: validateJWTUserDTO ){
-    console.log('Inside Auth Service validateLoginUser');
+    console.log('Inside Auth Service validateJWTUser');
     // users was imported as * above
     const findUser = await this.databaseService.query.users.findFirst({ where: and(eq(users.name, name), eq(users.email, email)) });
     if(!findUser) return null;
@@ -65,19 +65,24 @@ export class AuthService {
     return findUser
   }
 
+  async validateRefreshJWTUser({ email }: validateRefreshJWTUserDTO ){
+    console.log('Inside Auth Service validateRefreshJWTUser');
+    // users was imported as * above
+    const findUser = await this.databaseService.query.users.findFirst({ where: eq(users.email, email) });
+    if(!findUser) return null;
 
-
+    return findUser
+  }
 
   async refreshToken(payload: any) {
 		const user = { id: payload.id, name: payload.name, email: payload.email };
     console.log(payload, 'service payload', user, 'service user');
 		return {
+      status: 'success',
+      message: 'Refresh Successful',
 			access_token: this.jwtService.sign(user),
 		};
 	}
-
-
-
 
   // FOR TESTING ONLY
   async falseJWT(data){

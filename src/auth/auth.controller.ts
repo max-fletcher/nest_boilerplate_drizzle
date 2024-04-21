@@ -31,18 +31,12 @@ export class AuthController {
     return req.user
   }
 
-
-
 	@Post('api/v1/refresh')
 	@UseGuards(RefreshJwtAuthGuard)
 	async refreshToken(@Req() req) {
 		return this.authService.refreshToken(req.user);
 	}
 
-
-
-
-  
   // FOR TESTING ONLY
   @Get('api/v1/false_jwt')
   falseJWT(@Body() body){

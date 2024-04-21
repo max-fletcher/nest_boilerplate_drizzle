@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { AuthService } from '../auth.service';
 
+// IMP: DON'T FORGET TO ADD email: "mail@mail.com" IN BODY OF "/refresh" ELSE THIS WILL NOT WORK
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-	constructor(private configService: ConfigService) {
-    console.log('here2');
-    console.log(ExtractJwt.fromAuthHeaderAsBearerToken(), ExtractJwt.fromHeader('refresh_token'), configService.getOrThrow('JWT_SECRET'));
+	constructor(private authService: AuthService, private configService: ConfigService) {
 		super({
 			jwtFromRequest: ExtractJwt.fromHeader('refresh_token'),
 			ignoreExpiration: false,
@@ -18,6 +18,11 @@ export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
 
 	async validate(payload: any) {
     console.log('Inside RefreshJwtStrategy Validate');
+    console.log('payload', payload)
+
+    // validating user by seeing if a user with this email exists in database
+    const user = await this.authService.validateRefreshJWTUser(payload)
+    if (!user) throw new UnauthorizedException('Invalid Refresh Token provided.');
 		return payload;
 	}
 }

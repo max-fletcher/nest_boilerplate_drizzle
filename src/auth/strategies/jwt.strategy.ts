@@ -26,7 +26,7 @@ export class JwtStategy extends PassportStrategy(Strategy, 'jwt-strategy'){ // e
     console.log('Inside JWTStrategy Validate')
     console.log('payload', payload)
 
-    // validating user by seeing if a user with this email exists in database
+    // validating user by seeing if a user with this email & name exists in database
     const user = await this.authService.validateJWTUser(payload)
     if (!user) throw new UnauthorizedException('Invalid JWT Token provided.');
 
