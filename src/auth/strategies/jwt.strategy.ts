@@ -15,7 +15,7 @@ export class JwtStategy extends PassportStrategy(Strategy, 'jwt-strategy'){ // e
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // this defines that we will extract the token from auth header as bearer token
       ignoreExpiration: false, // if set to true, will ignore the expiration datetime of the JWT
       secretOrKey: configService.getOrThrow('JWT_SECRET'), // This will be used to decrypt the JWT. Should have the same value as 'secret' in auth.module.ts "JwtModule.register" fn
-      usernameField: 'email' // defines that should be used of "username" as  prmary field to identify user
+      usernameField: 'email' // defines that should be used of "username" as  primary field to identify user
     })
   }
 

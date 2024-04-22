@@ -12,7 +12,7 @@ export class LocalStategy extends PassportStrategy(Strategy){ // extending a str
   // used to call the constructor of its parent class to access the parent's properties and methods
   constructor(private authService: AuthService){
     super({
-      usernameField: 'email' // defines that should be used of "username" as  prmary field to identify user
+      usernameField: 'email' // defines that should be used of "username" as  primary field to identify user
     })
   }
 
