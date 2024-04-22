@@ -14,7 +14,7 @@ export class PostsController {
     return this.postsService.create(createUserDto);
   }
 
-  @Get('')
+  @Get()
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   findAll(
     @Req() req: Request,
