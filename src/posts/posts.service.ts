@@ -14,11 +14,6 @@ export class PostsService {
   async findAll(req, currentPage, limit, search) {
     const builder = this.databaseService.query.posts
 
-    // let data2 = await builder.findMany()
-    // return {
-    //   data: data2
-    // }
-
     const columns = {
       id: true,
       title: true,
@@ -26,7 +21,7 @@ export class PostsService {
       created_at: true
     }
 
-    let options = {}
+    let options
 
     // append where & search constraints
     if(search.length){
