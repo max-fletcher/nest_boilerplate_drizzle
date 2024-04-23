@@ -13,10 +13,11 @@ async function bootstrap() {
   app.enableCors({
     // add multiple origins here
     origin: [
-      "http://localhost:3000/",
-      // "https://thriveread.com/",
+      "http://localhost:3000",
+      // "https://thriveread.com",
       // "http://yourclient.com",
     ],
+    credentials: true,
   });
   await app.listen(3500);
 }
