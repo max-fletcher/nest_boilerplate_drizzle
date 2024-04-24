@@ -22,6 +22,7 @@
   "dependencies": {
     "@knaadh/nestjs-drizzle-mysql2": "^1.0.1",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "*",
