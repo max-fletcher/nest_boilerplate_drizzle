@@ -12,6 +12,9 @@ export class PostsService {
   constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>, @Inject(PaginationService) private paginationService: PaginationService) {}
 
   async findAll(req, currentPage, limit, search) {
+
+    // throw new NotFoundException('Post not found.')
+
     const builder = this.databaseService.query.posts
 
     const columns = {

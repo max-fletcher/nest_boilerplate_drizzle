@@ -10,7 +10,9 @@ export class PaginationService {
   async paginate(req, builder, model, options, relations, currentPage, limit, columns, search){
     console.log('Inside Pagination Service paginate');
 
-    const offset = (currentPage - 1) * limit
+    const offset = currentPage ? (currentPage - 1) * limit : null
+    limit = currentPage ? limit : null
+    console.log(currentPage, limit, offset);
 
     options = {
       ...options,

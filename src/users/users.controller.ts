@@ -9,19 +9,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard) //using guard to protect this route
-  create(@Body(new ValidationPipe({whitelist: true})) createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  // Strictly for testing DB transactions
-  @Post('store_user_with_post')
-  @UseGuards(JwtAuthGuard) //using guard to protect this route
-  testing_db_transactions(@Body(new ValidationPipe({whitelist: true})) storeUserWithPostDto: storeUserWithPostDto) {
-    return this.usersService.storeUserWithPost(storeUserWithPostDto);
-  }
-
   @Get()
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   findAll(
@@ -37,6 +24,19 @@ export class UsersController {
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard) //using guard to protect this route
+  create(@Body(new ValidationPipe({whitelist: true})) createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
+  // Strictly for testing DB transactions
+  @Post('store_user_with_post')
+  @UseGuards(JwtAuthGuard) //using guard to protect this route
+  testing_db_transactions(@Body(new ValidationPipe({whitelist: true})) storeUserWithPostDto: storeUserWithPostDto) {
+    return this.usersService.storeUserWithPost(storeUserWithPostDto);
   }
 
   @Patch(':id')

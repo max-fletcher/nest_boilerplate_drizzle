@@ -15,7 +15,7 @@ export class PostsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard) //using guard to protect this route
+  // @UseGuards(JwtAuthGuard) //using guard to protect this route
   findAll(
     @Req() req: Request,
     @Query('currentPage', new DefaultValuePipe(0), ParseIntPipe) currentPage: number,
