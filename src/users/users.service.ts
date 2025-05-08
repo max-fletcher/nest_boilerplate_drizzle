@@ -111,7 +111,6 @@ export class UsersService {
 
   // Strictly for testing DB transactions
   async storeUserWithPost(testingDbTransactionsDto) {
-
     // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, testingDbTransactionsDto.name));
     if(exists[0].count)

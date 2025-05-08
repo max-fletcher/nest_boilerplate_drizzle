@@ -4,8 +4,8 @@
 4. Add cors(DONE)
 5. Add logger(DONE)
 6. Add custom exception handler(DONE)
-7. Use .env for secret & secretOrKey
-8. Catch Drizzle Errors/Exceptions
+7. Use .env for secret & secretOrKey(DONE)
+8. Catch Drizzle Errors/Exceptions(CANNOT BE DONE WITH CURRENT SCOPE)
 
 FROM NODE BOILERPLATE MONGO
 1. Relations(DONE)

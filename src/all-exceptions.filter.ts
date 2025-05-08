@@ -34,14 +34,16 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       statusCode: 500,
       timestamp: new Date().toISOString(),
       path: request.url,
-      response: ''
+      response: null
     }
 
     if(exception instanceof HttpException){
       myResponseObj.statusCode = exception.getStatus()
       let msg
+      let errors
       if(typeof(exception.getResponse()['message']) === 'string'){
         msg = exception.getResponse()['message']
+        errors = exception.getResponse()['errors']
       }
       else if(typeof(exception.getResponse()['message']) === 'object'){
         msg = exception.getResponse()['message'][0]
@@ -52,6 +54,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
       myResponseObj.response = {
         message: msg,
+        errors: errors,
         error: exception.getResponse()['error']
       }
       // Log error data
