@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { storeUserWithPostDto } from './dto/createUserWithPost.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storeUserWithPostAndFileDto } from './dto/createUserWithPostWithFile.dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Controller('api/v1/users')
 export class UsersController {
@@ -38,6 +42,43 @@ export class UsersController {
   testing_db_transactions(@Body(new ValidationPipe({whitelist: true})) storeUserWithPostDto: storeUserWithPostDto) {
     return this.usersService.storeUserWithPost(storeUserWithPostDto);
   }
+
+
+
+  // @Post('store_user_with_post_with_file')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async upload(
+  //   @UploadedFile() file: Express.Multer.File,
+  //   @Body() body: any,
+  // ) {
+  //   // Validate the body manually since we're using raw `any`
+  //   const dto = plainToInstance(storeUserWithPostAndFileDto, body);
+  //   const errors = await validate(dto);
+
+  //   if (errors.length > 0) {
+  //     const formattedErrors = {};
+  //     errors.forEach(err => {
+  //       formattedErrors[err.property] = Object.values(err.constraints);
+  //     });
+  //     throw new BadRequestException({ message: 'Validation failed', errors: formattedErrors });
+  //   }
+
+  //   // Manually validate file
+  //   if (!file) {
+  //     throw new BadRequestException({ message: 'File is required' });
+  //   }
+  //   if (!file.mimetype.startsWith('image/')) {
+  //     throw new BadRequestException({ message: 'Only image files are allowed' });
+  //   }
+
+  //   return {
+  //     message: 'File and body validated successfully',
+  //     file: file.originalname,
+  //     data: dto,
+  //   };
+  // }
+
+
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard) //using guard to protect this route
