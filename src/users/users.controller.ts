@@ -8,7 +8,8 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { storeUserWithPostAndFileDto } from './dto/createUserWithPostWithFile.dto';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { diskStorageEngine } from 'src/utils/multer.utils';
+import { diskStorageEngine, multipleFileLocalFullPathResolver } from 'src/utils/multer.utils';
+import { Request } from 'express';
 
 @Controller('api/v1/users')
 export class UsersController {
@@ -56,17 +57,19 @@ export class UsersController {
     })
   )
   async upload(
+    @Req() req: Request,
     @UploadedFiles() files: { avatar?: Express.Multer.File[], background?: Express.Multer.File[] },
     @Body() body: any,
   ) {
-
     try {
-      console.log('body after fileupload', body, files);
-      // console.log('Request', req);
+      console.log('merged fields', {...body, ...files});
 
       // Validate the body manually since we're using raw `any`
-      const dto = plainToInstance(storeUserWithPostAndFileDto, body);
+      const dto = plainToInstance(storeUserWithPostAndFileDto, {...body, ...files});
       const errors = await validate(dto);
+
+      const formattedFiles = multipleFileLocalFullPathResolver(req, files)
+      console.log('formattedFiles', formattedFiles);
   
       if (errors.length > 0) {
         const formattedErrors = {};
@@ -99,6 +102,7 @@ export class UsersController {
       };
     } catch (error) {
       console.log('store_user_with_post_with_file error', error);
+      throw error;
     }
   }
 

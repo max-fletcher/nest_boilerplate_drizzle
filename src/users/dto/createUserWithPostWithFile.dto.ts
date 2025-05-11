@@ -1,4 +1,18 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator"
+import { Type } from "class-transformer";
+import { IsArray, IsEmail, IsNotEmpty, IsString, Length, ValidateNested } from "class-validator"
+
+// export class FileDto {
+//   name: string;
+//   value: number;
+//   fieldname: string;
+//   originalname: string;
+//   encoding: string;
+//   mimetype: string;
+//   destination: string;
+//   filename: string;
+//   path: string;
+//   size: number;
+// }
 
 // HERE, THE ORDER OF CONDITION MATTERS BECAUSE THE ERROR MESSAGES WILL BE ORDERED BY CONDITION IN REVERSE ORDER
 // i.e THE LOWER THE CONDITIONS, THE HIGHER IT WILL GO UP
@@ -24,10 +38,8 @@ export class storeUserWithPostAndFileDto {
   @IsString()
   @IsNotEmpty()
   text: string
-  // @IsString()
-  // @IsNotEmpty()
-  // avatar: string
-  // @IsString()
-  // @IsNotEmpty()
-  // background: string
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => FileDto)
+  // items: FileDto[];
 }
