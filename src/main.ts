@@ -9,7 +9,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Serve static files from the "uploads" directory at the "/uploads" URL path
-  app.useStaticAssets(join(__dirname, '..', 'src', 'public'));
+  // *IMPORTANT NOTE: The starting directory is from /dist. That is why we are using join(__dirname, '..', '..', 'public', 'uploads') and not join(__dirname, '..', 'public', 'uploads')
+  app.useStaticAssets(join(__dirname, '..', '..', 'public', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // IMPORTING AND APPLYING STUFF FOR THE CUSTOM ExceptionFilter WE CREATED(next 2 lines)
   const { httpAdapter } = app.get(HttpAdapterHost)

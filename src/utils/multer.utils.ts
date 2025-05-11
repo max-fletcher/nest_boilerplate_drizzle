@@ -5,7 +5,7 @@ export const path = 'files_boi'
 export const diskStorageEngine = (path: string = '') => {
   return diskStorage({
     // destination: path !== '' ? './src/public/uploads/' + path : './src/public/uploads', // Ensure this folder exists or create it
-    destination: './src/public',
+    destination: './public/uploads',
     filename: (req, file, cb) => {
       const randomNum = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
       const filename =
