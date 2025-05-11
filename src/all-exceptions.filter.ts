@@ -55,7 +55,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       myResponseObj.response = {
         message: msg,
         errors: errors,
-        error: exception.getResponse()['error']
+        error: exception.getResponse()['error'],
       }
       // Log error data
       this.logger.error(myResponseObj.response.message, AllExceptionsFilter.name)

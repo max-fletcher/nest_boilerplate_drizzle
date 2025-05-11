@@ -2,9 +2,14 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationError, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './all-exceptions.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Serve static files from the "uploads" directory at the "/uploads" URL path
+  app.useStaticAssets(join(__dirname, '..', 'src', 'public'));
 
   // IMPORTING AND APPLYING STUFF FOR THE CUSTOM ExceptionFilter WE CREATED(next 2 lines)
   const { httpAdapter } = app.get(HttpAdapterHost)
@@ -60,6 +65,7 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+
   await app.listen(3500);
 }
 bootstrap();

@@ -13,7 +13,7 @@ export class CustomLoggerService extends ConsoleLogger {
           timeStyle: 'short',
           timeZone: 'America/Chicago',
       }).format(new Date())}\t${entry}\n`
-  
+
       try {
           if (!fs.existsSync(path.join(__dirname, '..', '..', 'logs'))){
               await fsPromises.mkdir(path.join(__dirname, '..', '..', 'logs'))

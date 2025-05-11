@@ -24,4 +24,10 @@ export class storeUserWithPostAndFileDto {
   @IsString()
   @IsNotEmpty()
   text: string
+  // @IsString()
+  // @IsNotEmpty()
+  // avatar: string
+  // @IsString()
+  // @IsNotEmpty()
+  // background: string
 }
