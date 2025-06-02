@@ -44,12 +44,15 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       if(typeof(exception.getResponse()['message']) === 'string'){
         msg = exception.getResponse()['message']
         errors = exception.getResponse()['errors']
+        console.log('error1', errors);
       }
       else if(typeof(exception.getResponse()['message']) === 'object'){
+        console.log('error2', errors);
         msg = exception.getResponse()['message'][0]
       }
       else{
         msg = exception.message
+        console.log('error3', errors);
       }
 
       myResponseObj.response = {

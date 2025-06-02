@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles, HttpCode } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { storeUserWithPostDto } from './dto/createUserWithPost.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { storeUserWithPostAndFileDto } from './dto/createUserWithPostWithFile.dto';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { diskStorageEngine, multipleFileLocalFullPathResolver } from 'src/utils/multer.utils';
 import { Request } from 'express';
+import { storeUserWithPostAndImageFileDto } from './dto/createUserWithPostWithFile.dto';
 
 @Controller('api/v1/users')
 export class UsersController {
@@ -33,6 +33,7 @@ export class UsersController {
   }
 
   @Post()
+  @HttpCode(201)
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   create(@Body(new ValidationPipe({whitelist: true})) createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -40,6 +41,7 @@ export class UsersController {
 
   // Strictly for testing DB transactions
   @Post('store_user_with_post')
+  @HttpCode(201)
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   testing_db_transactions(@Body(new ValidationPipe({whitelist: true})) storeUserWithPostDto: storeUserWithPostDto) {
     return this.usersService.storeUserWithPost(storeUserWithPostDto);
@@ -48,9 +50,10 @@ export class UsersController {
 
 
   @Post('store_user_with_post_with_file')
+  @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'avatar', maxCount: 1 },
+      { name: 'avatar', maxCount: 2 },
       { name: 'background', maxCount: 1 },
     ], {
     storage: diskStorageEngine(),
@@ -62,14 +65,14 @@ export class UsersController {
     @Body() body: any,
   ) {
     try {
-      console.log('merged fields', {...body, ...files});
+      // console.log('merged fields', {...body, ...files});
 
       // Validate the body manually since we're using raw `any`
-      const dto = plainToInstance(storeUserWithPostAndFileDto, {...body, ...files});
+      const dto = plainToInstance(storeUserWithPostAndImageFileDto, {...body, ...files});
       const errors = await validate(dto);
 
       const formattedFiles = multipleFileLocalFullPathResolver(req, files)
-      console.log('formattedFiles', formattedFiles);
+      // console.log('formattedFiles', formattedFiles);
   
       if (errors.length > 0) {
         const formattedErrors = {};

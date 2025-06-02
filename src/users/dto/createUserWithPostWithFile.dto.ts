@@ -1,45 +1,48 @@
 import { Type } from "class-transformer";
-import { IsArray, IsEmail, IsNotEmpty, IsString, Length, ValidateNested } from "class-validator"
-
-// export class FileDto {
-//   name: string;
-//   value: number;
-//   fieldname: string;
-//   originalname: string;
-//   encoding: string;
-//   mimetype: string;
-//   destination: string;
-//   filename: string;
-//   path: string;
-//   size: number;
-// }
+import { ArrayNotEmpty, IsArray, IsDefined, IsEmail, IsNotEmpty, IsNumber, IsString, Length, ValidateNested } from "class-validator"
+import { ImageFileDto } from "src/common/dto/image-file.dto";
+import { ImageExtFileValidation, ImageMimetypeFileValidation } from "src/common/validators/image-file.validator";
 
 // HERE, THE ORDER OF CONDITION MATTERS BECAUSE THE ERROR MESSAGES WILL BE ORDERED BY CONDITION IN REVERSE ORDER
 // i.e THE LOWER THE CONDITIONS, THE HIGHER IT WILL GO UP
-export class storeUserWithPostAndFileDto {
-  @Length(3, 300)
-  @IsString() 
+export class storeUserWithPostAndImageFileDto {
   @IsNotEmpty()
+  @IsString()
+  @Length(3, 300)
   name: string
+  @IsNotEmpty()
+  @IsString()
   @Length(1, 300)
   @IsEmail() // All decorators from class-validator is declared above the field like this
-  @IsString()
-  @IsNotEmpty()
   email: string
+  @IsNotEmpty()
+  @IsString()
   @Length(8, 50)
-  @IsString()
-  @IsNotEmpty()
   password: string
+  @IsNotEmpty()
+  @IsString()
   @Length(1, 100)
-  @IsString()
-  @IsNotEmpty()
   title: string
-  @Length(1,300)
-  @IsString()
   @IsNotEmpty()
+  @IsString()
+  @Length(1,300)
   text: string
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => FileDto)
-  // items: FileDto[];
+  @IsNotEmpty()
+  // @IsDefined()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => ImageFileDto)
+  @ImageExtFileValidation({ message: 'Avatar must be an image file' })
+  @ImageMimetypeFileValidation({ message: 'Avatar must be an image file' })
+  avatar: ImageFileDto[];
+  @IsNotEmpty()
+  // @IsDefined()
+  @ValidateNested({ each: true })
+  @IsArray()
+  @ArrayNotEmpty()
+  @Type(() => ImageFileDto)
+  @ImageExtFileValidation({ message: 'Background must be an image file' })
+  @ImageMimetypeFileValidation({ message: 'Background must be an image file' })
+  background: ImageFileDto[];
 }

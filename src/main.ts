@@ -37,7 +37,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      exceptionFactory: (errors: ValidationError[]) => {
+      exceptionFactory: (errors: ValidationError[]) => { // NOT IN USE HERE IF YOU ARE USING CUSTOM GLOBAL EXCEPTION HANDLER/FILTER(I.E AllExceptionsFilter). VALIDATION ERRORS ARE HANDLED THERE AND
         const formattedErrors = {};
 
         errors.forEach((error) => {
