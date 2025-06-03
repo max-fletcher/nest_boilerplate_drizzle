@@ -1,6 +1,6 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { BadRequestException, ValidationError, ValidationPipe } from '@nestjs/common';
+import { UnprocessableEntityException, ValidationError, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -50,7 +50,7 @@ async function bootstrap() {
           }
         });
 
-        return new BadRequestException({
+        return new UnprocessableEntityException({
           message: 'Validation failed',
           errors: formattedErrors,
         });

@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsDefined, IsEmail, IsNotEmpty, IsNumber, IsString, Length, ValidateNested } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsDefined, IsEmail, IsNotEmpty, IsString, Length, ValidateNested } from "class-validator"
 import { ImageFileDto } from "src/common/dto/image-file.dto";
 import { ImageExtFileValidation, ImageMimetypeFileValidation } from "src/common/validators/image-file.validator";
 
@@ -27,8 +27,8 @@ export class storeUserWithPostAndImageFileDto {
   @IsString()
   @Length(1,300)
   text: string
+  @IsDefined()
   @IsNotEmpty()
-  // @IsDefined()
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
@@ -36,8 +36,8 @@ export class storeUserWithPostAndImageFileDto {
   @ImageExtFileValidation({ message: 'Avatar must be an image file' })
   @ImageMimetypeFileValidation({ message: 'Avatar must be an image file' })
   avatar: ImageFileDto[];
+  @IsDefined()
   @IsNotEmpty()
-  // @IsDefined()
   @ValidateNested({ each: true })
   @IsArray()
   @ArrayNotEmpty()

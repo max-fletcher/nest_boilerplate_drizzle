@@ -3,7 +3,7 @@
 // It is worth noting that here, we are extending the "BaseExceptionFilter" as opposed to the "ExceptionFilter" (see docs
 // https://docs.nestjs.com/exception-filters#inheritance).
 // Hence, this will affect ALL exceptions throughout the app and not just a specific controller/method/function we are binding to.
-import { ArgumentsHost, HttpStatus, HttpException, Catch } from "@nestjs/common"
+import { ArgumentsHost, HttpStatus, HttpException, Catch, UnprocessableEntityException } from "@nestjs/common"
 import { BaseExceptionFilter } from "@nestjs/core";
 import { Request, Response } from 'express'
 import { CustomLoggerService } from "./custom-logger/custom-logger.service";
@@ -43,16 +43,18 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       let errors
       if(typeof(exception.getResponse()['message']) === 'string'){
         msg = exception.getResponse()['message']
+        console.log(exception.getResponse());
         errors = exception.getResponse()['errors']
-        console.log('error1', errors);
+        console.log('exception.getResponse', exception.getResponse(), typeof exception, exception instanceof UnprocessableEntityException);
+        if()
+        for (const [key, value] of Object.entries(errors))
+          errors[key] = errors[key].reverse()
       }
       else if(typeof(exception.getResponse()['message']) === 'object'){
-        console.log('error2', errors);
         msg = exception.getResponse()['message'][0]
       }
       else{
         msg = exception.message
-        console.log('error3', errors);
       }
 
       myResponseObj.response = {

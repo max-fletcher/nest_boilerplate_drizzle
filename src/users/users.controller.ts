@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles, HttpCode, UnprocessableEntityException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -53,7 +53,7 @@ export class UsersController {
   @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'avatar', maxCount: 2 },
+      { name: 'avatar', maxCount: 1 },
       { name: 'background', maxCount: 1 },
     ], {
     storage: diskStorageEngine(),
@@ -72,14 +72,14 @@ export class UsersController {
       const errors = await validate(dto);
 
       const formattedFiles = multipleFileLocalFullPathResolver(req, files)
-      // console.log('formattedFiles', formattedFiles);
+      console.log('formattedFiles', formattedFiles);
   
       if (errors.length > 0) {
         const formattedErrors = {};
         errors.forEach(err => {
           formattedErrors[err.property] = Object.values(err.constraints);
         });
-        throw new BadRequestException({ message: 'Validation failed', errors: formattedErrors });
+        throw new UnprocessableEntityException({ message: 'Validation failed', errors: formattedErrors });
       }
   
       // Manually validate file
