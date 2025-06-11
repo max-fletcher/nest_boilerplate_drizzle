@@ -45,10 +45,12 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
         msg = exception.getResponse()['message']
         console.log(exception.getResponse());
         errors = exception.getResponse()['errors']
+
         console.log('exception.getResponse', exception.getResponse(), typeof exception, exception instanceof UnprocessableEntityException);
-        if()
-        for (const [key, value] of Object.entries(errors))
-          errors[key] = errors[key].reverse()
+
+        if(exception instanceof UnprocessableEntityException)
+          for (const [key, value] of Object.entries(errors))
+            errors[key] = errors[key].reverse()
       }
       else if(typeof(exception.getResponse()['message']) === 'object'){
         msg = exception.getResponse()['message'][0]
