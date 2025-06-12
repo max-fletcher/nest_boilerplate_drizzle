@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalGuard } from './guards/local.guard';
 import { Request } from 'express';
@@ -17,6 +17,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @UseGuards(LocalGuard) //using a custom guard that we made by extending local strategy
   login(@Req() req: Request){
     console.log('Inside Auth Controller Login');
