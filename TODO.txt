@@ -16,3 +16,4 @@ FROM NODE BOILERPLATE MONGO
 6. Pagination for getAll calls(DONE)
 7. Scheduled Task
 8. Formatted responses
+9. Queue
