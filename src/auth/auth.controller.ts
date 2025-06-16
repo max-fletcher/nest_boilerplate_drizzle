@@ -20,7 +20,7 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalGuard) //using a custom guard that we made by extending local strategy
   login(@Req() req: Request){
-    console.log('Inside Auth Controller Login', req.user);
+    console.log('Inside Auth Controller Login');
     // since the validate method in jwt strategy appends the user to the request
     return req.user
   }

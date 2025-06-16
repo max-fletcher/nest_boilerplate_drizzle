@@ -31,14 +31,11 @@ export class AuthService {
     const result = await this.databaseService.insert(users).values(userData);
     const user = await this.databaseService.query.users.findFirst({ where: eq(users.id, result[0].insertId) });
 
-    console.log('Inside Auth Service register userdata', user);
-
     return {
       status: 'success',
       message: 'Register Successful',
       access_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }, { expiresIn: this.configService.getOrThrow('JWT_EXPIRATION_TIME') }),
-      refresh_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') }),
-      user: user
+      refresh_token: this.jwtService.sign({ id: user.id, name: user.name, email: user.email }, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') })
     } // returns the JWT
   }
 
@@ -51,14 +48,11 @@ export class AuthService {
     if(!match) return null
     const user = { id: findUser.id, name: findUser.name, email: findUser.email }
 
-    console.log('Inside Auth Service validateLoginUser userdata', user);
-
     return {
       status: 'success',
       message: 'Login Successful',
       access_token: this.jwtService.sign(user, { expiresIn: this.configService.getOrThrow('JWT_EXPIRATION_TIME') }),
-      refresh_token: this.jwtService.sign(user, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') }),
-      user: user
+      refresh_token: this.jwtService.sign(user, { expiresIn: this.configService.getOrThrow('REFRESH_TOKEN_EXPIRATION_TIME') })
     } // returns the JWT
   }
 

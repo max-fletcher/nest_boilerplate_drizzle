@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Body, Inject, Injectable, InternalServerErrorException, NotFoundException, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { CreatePostDto } from './dto/storePostDto';
 import { UpdatePostDto } from './dto/updatePostDto';
 import * as schema from '../db/schema';
@@ -12,6 +12,9 @@ export class PostsService {
   constructor(@Inject('DB_DEV') private databaseService: MySql2Database<typeof schema>, @Inject(PaginationService) private paginationService: PaginationService) {}
 
   async findAll(req, currentPage, limit, search) {
+
+    // throw new NotFoundException('Post not found.')
+
     const builder = this.databaseService.query.posts
 
     const columns = {
