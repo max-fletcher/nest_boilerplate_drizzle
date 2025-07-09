@@ -43,14 +43,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       let errors
       if(typeof(exception.getResponse()['message']) === 'string'){
         msg = exception.getResponse()['message']
-        console.log(exception.getResponse());
-        errors = exception.getResponse()['errors']
-
         console.log('exception.getResponse', exception.getResponse(), typeof exception, exception instanceof UnprocessableEntityException);
-
-        if(exception instanceof UnprocessableEntityException)
-          for (const [key, value] of Object.entries(errors))
-            errors[key] = errors[key].reverse()
+        errors = exception.getResponse()['errors']
       }
       else if(typeof(exception.getResponse()['message']) === 'object'){
         msg = exception.getResponse()['message'][0]
@@ -67,11 +61,6 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       // Log error data
       this.logger.error(myResponseObj.response.message, AllExceptionsFilter.name)
     }
-    // LOGIC FOR HANDLING VALIDATION ERRORS(NOT VIABLE TO SCOPE IT OUT USING DRIZZLE. INSTEAD, USED SOME CHECKS ABOVE)
-    // else if (exception instanceof DrizzleError){
-    //   myResponseObj.statusCode = 422
-    //   myResponseObj.response = exception.message.replaceAll(/\n/g, ' ') // replace all the linebreaks
-    // }
     else {
       myResponseObj.statusCode = HttpStatus.INTERNAL_SERVER_ERROR
       myResponseObj.response = 'Internal Server Error'
