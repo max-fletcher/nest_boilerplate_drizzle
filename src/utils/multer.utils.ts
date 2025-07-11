@@ -1,6 +1,7 @@
 import { diskStorage } from "multer";
 import { Request } from 'express';
 import * as fs from 'fs';
+import { relative, resolve } from "path";
 
 export type formattedPathsType = {
   [key: string]: string[];
@@ -50,16 +51,22 @@ export const additionalValidation = (maxSize) => {
 
 export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
   if (!Object.keys(files!).length) return;
-  const formatted_paths: formattedPathsType = {};
 
-  Object.entries(files).forEach(([fieldName, files]) => {
-    const paths = (files as Express.Multer.File[]).map((file) => {
-      const publicUrl =
+  const formatted_paths: Record<string, string[]> = {};
+
+  Object.entries(files).forEach(([fieldName, fileArray]) => {
+    const paths = (fileArray as Express.Multer.File[]).map((file) => {
+      const publicDirPath = resolve('public'); // Absolute path to /public
+      const filePath = resolve(file.path);     // Absolute path to uploaded file
+
+      const relativePath = relative(publicDirPath, filePath).replace(/\\/g, '/'); // Always forward slashes
+
+      const baseUrl =
         process.env.FILE_BASE_URL && process.env.FILE_BASE_URL !== ''
           ? process.env.FILE_BASE_URL
           : `${req.protocol}://${req.get('host')}`;
 
-      return `${publicUrl}/${file.path.replace(/\\/g, '/').replace('/public', '')}`;
+      return `${baseUrl}/${relativePath}`;
     });
 
     formatted_paths[fieldName] = paths;
@@ -67,6 +74,28 @@ export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
 
   return formatted_paths;
 };
+
+// export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
+//   if (!Object.keys(files!).length) return;
+//   const formatted_paths: formattedPathsType = {};
+
+//   Object.entries(files).forEach(([fieldName, files]) => {
+//     const paths = (files as Express.Multer.File[]).map((file) => {
+//       const publicUrl =
+//         process.env.FILE_BASE_URL && process.env.FILE_BASE_URL !== ''
+//           ? process.env.FILE_BASE_URL
+//           : `${req.protocol}://${req.get('host')}`;
+
+//       console.log('file path', file.path.replace(/\\/g, '/').replace('public', ''), 'bleu', `${publicUrl}/${file.path.replace(/\\/g, '/').replace('public', '')}`)
+
+//       return `${publicUrl}/${file.path.replace(/\\/g, '/').replace('public', '')}`;
+//     });
+
+//     formatted_paths[fieldName] = paths;
+//   });
+
+//   return formatted_paths;
+// };
 
 export const rollbackMultipleFileLocalUpload = async (req: Request) => {
   // IF EXISTS/NOT EMPTY CHECK

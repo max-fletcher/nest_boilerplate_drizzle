@@ -5,7 +5,7 @@ import { ImageExtFileValidation, ImageMimetypeFileValidation } from "src/common/
 
 // HERE, THE ORDER OF CONDITION MATTERS BECAUSE THE ERROR MESSAGES WILL BE ORDERED BY CONDITION IN REVERSE ORDER
 // i.e THE LOWER THE CONDITIONS, THE HIGHER IT WILL GO UP
-export class storeUserWithPostAndImageFileDto {
+export class StoreUserWithPostAndImageFileDto {
   @IsNotEmpty()
   @IsString()
   @Length(3, 300)

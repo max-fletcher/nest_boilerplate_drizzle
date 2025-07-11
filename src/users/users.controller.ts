@@ -9,7 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { diskStorageEngine, multipleFileLocalFullPathResolver, rollbackMultipleFileLocalUpload } from 'src/utils/multer.utils';
 import { Request } from 'express';
-import { storeUserWithPostAndImageFileDto } from './dto/createUserWithPostWithFile.dto';
+import { StoreUserWithPostAndImageFileDto } from './dto/createUserWithPostWithFile.dto';
 
 @Controller('api/v1/users')
 export class UsersController {
@@ -54,7 +54,6 @@ export class UsersController {
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'avatar', maxCount: 1 },
-      { name: 'background', maxCount: 1 },
     ], {
     storage: diskStorageEngine('avatar'),
     })
@@ -66,10 +65,12 @@ export class UsersController {
   ) {
     try {
       // Validate the body manually since we're using raw `any`
-      const dto = plainToInstance(storeUserWithPostAndImageFileDto, {...body, ...files});
-      const errors = await validate(dto);
+      const data = plainToInstance(StoreUserWithPostAndImageFileDto, {...body, ...files});
+      const errors = await validate(data);
 
       const formattedFiles = multipleFileLocalFullPathResolver(req, files)
+
+      console.log('formattedFiles', formattedFiles)
   
       if (errors.length > 0) {
         const formattedErrors = {};
@@ -79,30 +80,9 @@ export class UsersController {
         throw new UnprocessableEntityException({ message: 'Validation failed', errors: formattedErrors });
       }
 
-      const storeData = { ...dto, avatar: formattedFiles.avatar[0] }
+      const storeData = { ...data, avatar: formattedFiles && formattedFiles.avatar ? formattedFiles.avatar[0] : undefined }
 
       return await this.usersService.storeUserWithPostWithFile(storeData);
-
-      // // Manually validate file
-      // if (!files.avatar[0]) {
-      //   throw new BadRequestException({ message: 'File is required' });
-      // }
-      // if (!files.avatar[0].mimetype.startsWith('image/')) {
-      //   throw new BadRequestException({ message: 'Only image files are allowed' });
-      // }
-  
-      // if (!files.background[0]) {
-      //   throw new BadRequestException({ message: 'File is required' });
-      // }
-      // if (!files.background[0].mimetype.startsWith('image/')) {
-      //   throw new BadRequestException({ message: 'Only image files are allowed' });
-      // }
-  
-      return {
-        message: 'File and body validated successfully',
-        files: formattedFiles,
-        // data: res,
-      };
     } catch (error) {
       console.log('error', error)
       rollbackMultipleFileLocalUpload(req)
@@ -115,8 +95,44 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard) //using guard to protect this route
-  update(@Param('id') id: string, @Body(new ValidationPipe({whitelist: true})) updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'avatar', maxCount: 1 },
+    ], {
+    storage: diskStorageEngine('avatar'),
+    })
+  )
+  async update(
+    @Param('id') id: string, 
+    @Req() req: Request, 
+    @UploadedFiles() files: { avatar?: Express.Multer.File[], background?: Express.Multer.File[] }, @Body() body: any
+  ) {
+      try {
+        // Validate the body manually since we're using raw `any`
+        const data = plainToInstance(UpdateUserDto, {...body, ...files});
+        const errors = await validate(data);
+
+        const formattedFiles = multipleFileLocalFullPathResolver(req, files)
+    
+        if (errors.length > 0) {
+          const formattedErrors = {};
+          errors.forEach(err => {
+            formattedErrors[err.property] = Object.values(err.constraints).reverse(); // reversed so that class-validator errors are in correct order(it sucks tbh...)
+          });
+          throw new UnprocessableEntityException({ message: 'Validation failed', errors: formattedErrors });
+        }
+
+        const updateUserData = { ...data, avatar: formattedFiles && formattedFiles.avatar ? formattedFiles.avatar[0] : undefined }
+
+        console.log('updateUserData', updateUserData)
+
+        return await this.usersService.update(+id, updateUserData);
+      } catch (error) {
+        console.log('error', error)
+        rollbackMultipleFileLocalUpload(req)
+        console.log('store_user_with_post_with_file error', error);
+        throw error;
+      }
   }
 
   @Delete(':id')

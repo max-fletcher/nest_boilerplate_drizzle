@@ -7,6 +7,8 @@ import { and, count, eq, like, ne, or } from 'drizzle-orm';
 import { users, posts } from '../db/schema';
 import * as bcrypt from 'bcrypt';
 import { PaginationService } from 'src/pagination/pagination.service';
+import { StoreUserWithPostAndImageFileDto } from './dto/createUserWithPostWithFile.dto';
+import { TValdiatedUser, TValdiatedUserWithPostAndImage } from './types/validatedData.type';
 
 @Injectable()
 export class UsersService {
@@ -157,7 +159,7 @@ export class UsersService {
   }
 
     // Strictly for testing DB transactions
-  async storeUserWithPostWithFile(storeData) {
+  async storeUserWithPostWithFile(storeData: TValdiatedUserWithPostAndImage) {
     // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, storeData.name));
     if(exists[0].count)
@@ -206,29 +208,29 @@ export class UsersService {
 
   
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, data: TValdiatedUser) {
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.id, id));
     if(!exists[0].count)
       throw new BadRequestException('User not found.');
 
     // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
     exists = await this.databaseService.select({ count: count() }).from(users)
-                    .where(and(eq(users.name, updateUserDto.name), ne(users.id, id)));
+                    .where(and(eq(users.name, data.name), ne(users.id, id)));
     if(exists[0].count)
       throw new BadRequestException('User with this name already exists.');
     exists = await this.databaseService.select({ count: count() }).from(users)
                     .where(
                       and(
-                        eq(users.email, updateUserDto.email), ne(users.id, id)
+                        eq(users.email, data.email), ne(users.id, id)
                       )
                     );
     if(exists[0].count)
       throw new BadRequestException('User with this email already exists.');
 
-    if(updateUserDto.password)
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    if(data.password)
+      data.password = await bcrypt.hash(data.password, 10);
 
-    const result = await this.databaseService.update(users).set(updateUserDto).where(eq(users.id, id));
+    const result = await this.databaseService.update(users).set(data).where(eq(users.id, id));
     const findUser = await this.databaseService.query.users.findFirst({ where: eq(users.id, id) });
 
     return {
