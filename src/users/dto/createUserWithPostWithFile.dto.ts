@@ -27,7 +27,6 @@ export class storeUserWithPostAndImageFileDto {
   @IsString()
   @Length(1,300)
   text: string
-  @IsDefined()
   @IsNotEmpty()
   @IsArray()
   @ArrayNotEmpty()
@@ -36,13 +35,12 @@ export class storeUserWithPostAndImageFileDto {
   @ImageExtFileValidation({ message: 'Avatar must be an image file' })
   @ImageMimetypeFileValidation({ message: 'Avatar must be an image file' })
   avatar: ImageFileDto[];
-  @IsDefined()
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @IsArray()
-  @ArrayNotEmpty()
-  @Type(() => ImageFileDto)
-  @ImageExtFileValidation({ message: 'Background must be an image file' })
-  @ImageMimetypeFileValidation({ message: 'Background must be an image file' })
-  background: ImageFileDto[];
+  // @IsNotEmpty()
+  // @ValidateNested({ each: true })
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @Type(() => ImageFileDto)
+  // @ImageExtFileValidation({ message: 'Background must be an image file' })
+  // @ImageMimetypeFileValidation({ message: 'Background must be an image file' })
+  // background: ImageFileDto[];
 }

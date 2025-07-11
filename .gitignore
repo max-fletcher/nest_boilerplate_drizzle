@@ -4,6 +4,9 @@
 /build
 /drizzle
 
+# files folder
+/public
+
 # Logs
 logs
 *.log

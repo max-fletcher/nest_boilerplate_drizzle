@@ -1,7 +1,6 @@
 import { diskStorage } from "multer";
 import { Request } from 'express';
-
-export const path = 'files_boi'
+import * as fs from 'fs';
 
 export type formattedPathsType = {
   [key: string]: string[];
@@ -20,9 +19,9 @@ export type fieldsType = {
 
 export const diskStorageEngine = (path: string = '') => {
   const dir = './public/uploads/' + path;
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); // create folder if it doesn't exist
 
   return diskStorage({
-    // destination: path !== '' ? './public/uploads/' + path : './public/uploads', // Ensure this folder exists or create it
     destination: dir,
     filename: (req, file, cb) => {
       const randomNum = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
@@ -50,36 +49,41 @@ export const additionalValidation = (maxSize) => {
 }
 
 export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
-  console.log('req files', req.files, 'files', files);
-
   if (!Object.keys(files!).length) return;
-
   const formatted_paths: formattedPathsType = {};
 
-  Object.entries(files!).map((element: any) => {
-    let paths: Array<string> = [];
-    element[1].map((fields: fieldsType) => {
-      // console.log('fields', fields);
-      paths = [
-        (!process.env.FILE_BASE_URL || process.env.FILE_BASE_URL === ''
-          ? req.protocol + '://' + req.get('host')
-          : process.env.FILE_BASE_URL) +
-          '/' +
-          fields.path
-            .substring(
-              fields.path.indexOf('\\') + 1,
-              fields.path.lastIndexOf('\\'),
-            )
-            .replace('public\\', '')
-            .replace('\\', '/') +
-          '/' +
-          fields.filename,
-        ...paths,
-      ];
+  Object.entries(files).forEach(([fieldName, files]) => {
+    const paths = (files as Express.Multer.File[]).map((file) => {
+      const publicUrl =
+        process.env.FILE_BASE_URL && process.env.FILE_BASE_URL !== ''
+          ? process.env.FILE_BASE_URL
+          : `${req.protocol}://${req.get('host')}`;
+
+      return `${publicUrl}/${file.path.replace(/\\/g, '/').replace('/public', '')}`;
     });
 
-    formatted_paths[element[0]] = paths;
+    formatted_paths[fieldName] = paths;
   });
 
   return formatted_paths;
+};
+
+export const rollbackMultipleFileLocalUpload = async (req: Request) => {
+  // IF EXISTS/NOT EMPTY CHECK
+  if (!Object.keys(req.files!).length) return;
+
+  Object.values(req.files!).forEach(async (fields: fieldsType[]) => {
+    fields.map(async (field: fieldsType) => {
+      const directoryPath = field.path.replaceAll('\\', '/');
+
+      console.log('222', 'field', field, 'directoryPath', directoryPath, fs.existsSync(directoryPath)) 
+      // IF EXISTS/NOT EMPTY CHECK. DUNNO WHAT TO DO WITH THIS...
+      if (field && fs.existsSync(directoryPath)) {
+        await fs.unlinkSync(directoryPath);
+        console.log('333', fs.existsSync(directoryPath))
+      }
+    });
+  });
+
+  return;
 };

@@ -23,7 +23,7 @@ async function bootstrap() {
     const result = {};
     errors.forEach((error) => {
       if (error.constraints) {
-        result[error.property] = Object.values(error.constraints); // REPLACE LINE BELOW WITH THIS IS YOU WANT ALL VAL ERRORS AS ARRAY
+        // result[error.property] = Object.values(error.constraints); // REPLACE LINE BELOW WITH THIS IS YOU WANT ALL VAL ERRORS AS ARRAY
         result[error.property] = Object.values(error.constraints)[0];
       } else if (error.children && error.children.length > 0) {
         // result[error.property] = extractNestedErrors(error.children); // REPLACE LINE BELOW WITH THIS IS YOU WANT ALL VAL ERRORS AS ARRAY

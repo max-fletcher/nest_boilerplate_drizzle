@@ -8,6 +8,7 @@ export const users = mysqlTable('users', {
   id: bigint('id', { mode: 'number', unsigned: true }).primaryKey().autoincrement(),
   name: varchar('name', { length: 300 }).notNull().unique(),
   email: varchar('email', { length: 300 }).notNull().unique(),
+  avatar : varchar('avatar', { length: 300 }),
   password: varchar('password', { length: 300 }).notNull(),
   created_at: timestamp('created_at').default(sql`CURRENT_TIMESTAMP`),
   updated_at: timestamp('updated_at').default(sql`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`),

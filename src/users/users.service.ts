@@ -135,7 +135,53 @@ export class UsersService {
         text: testingDbTransactionsDto.text,
       });
 
-      console.log(createdUser, createdPost);
+      return true
+    });
+
+    if(!success){
+      throw new InternalServerErrorException('Something went wrong. Please try again.')
+    }
+
+    const userWithPost = await this.databaseService.query.users.findFirst({ 
+                            where: eq(users.id, createdUser[0].insertId),
+                            with: { 
+                              posts: true 
+                            } 
+                          });
+
+    return {
+      status: 'success',
+      message: 'User with post created successfully',
+      data: userWithPost,
+    }
+  }
+
+    // Strictly for testing DB transactions
+  async storeUserWithPostWithFile(storeData) {
+    // COUNT QUERY. USED TO SEE IF DATA ALREADY EXISTS
+    let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.name, storeData.name));
+    if(exists[0].count)
+      throw new BadRequestException('User with this name already exists.');
+    exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.email, storeData.email));
+    if(exists[0].count)
+      throw new BadRequestException('User with this email already exists.');
+
+    let createdUser
+    let createdPost
+    const success: boolean = await this.databaseService.transaction(async (tx) => {
+      storeData.password = await bcrypt.hash(storeData.password, 10);
+      createdUser = await tx.insert(users).values({
+        name: storeData.name,
+        email: storeData.email,
+        password: storeData.password,
+        avatar: storeData.avatar,
+      });
+
+      createdPost = await tx.insert(posts).values({
+        user_id: createdUser[0].insertId,
+        title: storeData.title,
+        text: storeData.text,
+      });
 
       return true
     });
@@ -157,6 +203,8 @@ export class UsersService {
       data: userWithPost,
     }
   }
+
+  
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.id, id));
