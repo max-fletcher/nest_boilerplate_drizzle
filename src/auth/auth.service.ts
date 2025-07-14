@@ -49,7 +49,7 @@ export class AuthService {
     if(!findUser) return null;
     const match = await bcrypt.compare(password, findUser.password);
     if(!match) return null
-    const user = { id: findUser.id, name: findUser.name, email: findUser.email }
+    const user = { id: findUser.id, name: findUser.name, email: findUser.email, avatar: findUser.avatar }
 
     console.log('Inside Auth Service validateLoginUser userdata', user);
 
@@ -62,11 +62,14 @@ export class AuthService {
     } // returns the JWT
   }
 
-  async validateJWTUser({ name, email }: validateJWTUserDTO ){
+  async validateJWTUser({ id }: validateJWTUserDTO ){
     console.log('Inside Auth Service validateJWTUser');
     // users was imported as * above
 
-    const findUser = await this.databaseService.query.users.findFirst({ where: and(eq(users.name, name), eq(users.email, email)) });
+    // Using id to check user existance now instead of using name and email
+    // This is so that when a user updates his/her email using update route, the JWT still remains valid
+    // const findUser = await this.databaseService.query.users.findFirst({ where: and(eq(users.name, name), eq(users.email, email)) });
+    const findUser = await this.databaseService.query.users.findFirst({ where: eq(users.id, id) });
     if(!findUser) return null;
 
     return findUser

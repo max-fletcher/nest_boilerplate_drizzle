@@ -75,28 +75,6 @@ export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
   return formatted_paths;
 };
 
-// export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
-//   if (!Object.keys(files!).length) return;
-//   const formatted_paths: formattedPathsType = {};
-
-//   Object.entries(files).forEach(([fieldName, files]) => {
-//     const paths = (files as Express.Multer.File[]).map((file) => {
-//       const publicUrl =
-//         process.env.FILE_BASE_URL && process.env.FILE_BASE_URL !== ''
-//           ? process.env.FILE_BASE_URL
-//           : `${req.protocol}://${req.get('host')}`;
-
-//       console.log('file path', file.path.replace(/\\/g, '/').replace('public', ''), 'bleu', `${publicUrl}/${file.path.replace(/\\/g, '/').replace('public', '')}`)
-
-//       return `${publicUrl}/${file.path.replace(/\\/g, '/').replace('public', '')}`;
-//     });
-
-//     formatted_paths[fieldName] = paths;
-//   });
-
-//   return formatted_paths;
-// };
-
 export const rollbackMultipleFileLocalUpload = async (req: Request) => {
   // IF EXISTS/NOT EMPTY CHECK
   if (!Object.keys(req.files!).length) return;
@@ -105,13 +83,35 @@ export const rollbackMultipleFileLocalUpload = async (req: Request) => {
     fields.map(async (field: fieldsType) => {
       const directoryPath = field.path.replaceAll('\\', '/');
 
-      console.log('222', 'field', field, 'directoryPath', directoryPath, fs.existsSync(directoryPath)) 
+      console.log('222', 'field', field, 'directoryPath', directoryPath, fs.existsSync(directoryPath))
       // IF EXISTS/NOT EMPTY CHECK. DUNNO WHAT TO DO WITH THIS...
       if (field && fs.existsSync(directoryPath)) {
         await fs.unlinkSync(directoryPath);
         console.log('333', fs.existsSync(directoryPath))
       }
     });
+  });
+
+  return;
+};
+
+export const deleteMultipleFileLocal = async (
+  req: Request,
+  filePaths?: string[] | null,
+) => {
+  if (!filePaths) return;
+
+  filePaths.map(async (filePath) => {
+    const tempFilePath =
+      'public/' +
+      filePath.replace(
+        (!process.env.FILE_BASE_URL || process.env.FILE_BASE_URL === ''
+          ? req.protocol + '://' + req.get('host')
+          : process.env.FILE_BASE_URL) + '/',
+        '',
+      );
+    console.log('tempFilePath', tempFilePath);
+    if (fs.existsSync(tempFilePath)) await fs.unlinkSync(tempFilePath);
   });
 
   return;

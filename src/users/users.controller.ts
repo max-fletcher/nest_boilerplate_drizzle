@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles, HttpCode, UnprocessableEntityException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, ParseIntPipe, Query, Req, ValidationPipe, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UploadedFiles, HttpCode, UnprocessableEntityException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,7 +7,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { diskStorageEngine, multipleFileLocalFullPathResolver, rollbackMultipleFileLocalUpload } from 'src/utils/multer.utils';
+import { deleteMultipleFileLocal, diskStorageEngine, multipleFileLocalFullPathResolver, rollbackMultipleFileLocalUpload } from 'src/utils/multer.utils';
 import { Request } from 'express';
 import { StoreUserWithPostAndImageFileDto } from './dto/createUserWithPostWithFile.dto';
 
@@ -91,8 +91,6 @@ export class UsersController {
     }
   }
 
-
-
   @Patch(':id')
   @UseGuards(JwtAuthGuard) //using guard to protect this route
   @UseInterceptors(
@@ -105,15 +103,13 @@ export class UsersController {
   async update(
     @Param('id') id: string, 
     @Req() req: Request, 
-    @UploadedFiles() files: { avatar?: Express.Multer.File[], background?: Express.Multer.File[] }, @Body() body: any
+    @UploadedFiles() files: { avatar?: Express.Multer.File[] }, @Body() body: any
   ) {
       try {
         // Validate the body manually since we're using raw `any`
-        const data = plainToInstance(UpdateUserDto, {...body, ...files});
+        const data = plainToInstance(UpdateUserDto, {...body, ...files}); // Transform JS object to a Class(as per the 1st param)
         const errors = await validate(data);
 
-        const formattedFiles = multipleFileLocalFullPathResolver(req, files)
-    
         if (errors.length > 0) {
           const formattedErrors = {};
           errors.forEach(err => {
@@ -122,22 +118,30 @@ export class UsersController {
           throw new UnprocessableEntityException({ message: 'Validation failed', errors: formattedErrors });
         }
 
+        const user = await this.usersService.findOne(+id);
+        const formattedFiles = multipleFileLocalFullPathResolver(req, files)
+        if(formattedFiles && user.data.avatar) 
+          deleteMultipleFileLocal(req, [user.data.avatar])
         const updateUserData = { ...data, avatar: formattedFiles && formattedFiles.avatar ? formattedFiles.avatar[0] : undefined }
-
-        console.log('updateUserData', updateUserData)
 
         return await this.usersService.update(+id, updateUserData);
       } catch (error) {
         console.log('error', error)
         rollbackMultipleFileLocalUpload(req)
-        console.log('store_user_with_post_with_file error', error);
         throw error;
       }
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard) //using guard to protect this route
-  remove(@Param('id') id: string) {
+  async remove(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const user = await this.usersService.findOne(+id);
+    if(user.data.avatar)
+      deleteMultipleFileLocal(req, [user.data.avatar])
+
     return this.usersService.remove(+id);
   }
 }

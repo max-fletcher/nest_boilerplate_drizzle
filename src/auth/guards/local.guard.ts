@@ -2,7 +2,7 @@ import { ExecutionContext, HttpStatus, Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Observable } from "rxjs";
 import { AuthPayloadDto } from "../dto/auth.dto";
-import { plainToClass } from "class-transformer";
+import { plainToInstance } from "class-transformer";
 import { Request, Response } from 'express';
 import { validateSync } from "class-validator";
 
@@ -18,7 +18,7 @@ export class LocalGuard extends AuthGuard('local'){
       const response = context.switchToHttp().getResponse<Response>();
 
       // transform the request object to class instance
-      const body = plainToClass(AuthPayloadDto, request.body);
+      const body = plainToInstance(AuthPayloadDto, request.body);
 
       // get a list of errors
       const errors = validateSync(body);

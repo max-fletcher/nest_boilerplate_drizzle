@@ -20,6 +20,7 @@ export class UsersService {
       id: true,
       name: true,
       email: true,
+      avatar: true,
       created_at: true
     }
     let options
@@ -76,6 +77,7 @@ export class UsersService {
                                 id: true,
                                 name: true,
                                 email: true,
+                                avatar: true,
                                 created_at: true
                               }
                             });
