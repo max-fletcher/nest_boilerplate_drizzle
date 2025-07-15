@@ -50,6 +50,9 @@ export const additionalValidation = (maxSize) => {
 }
 
 export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
+  // IF EXISTS/NOT EMPTY CHECK
+  if(!req.files) return;
+
   if (!Object.keys(files!).length) return;
 
   const formatted_paths: Record<string, string[]> = {};
@@ -77,6 +80,8 @@ export const multipleFileLocalFullPathResolver = (req: Request, files: any) => {
 
 export const rollbackMultipleFileLocalUpload = async (req: Request) => {
   // IF EXISTS/NOT EMPTY CHECK
+  if(!req.files) return;
+
   if (!Object.keys(req.files!).length) return;
 
   Object.values(req.files!).forEach(async (fields: fieldsType[]) => {
