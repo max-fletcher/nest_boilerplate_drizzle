@@ -208,8 +208,6 @@ export class UsersService {
     }
   }
 
-  
-
   async update(id: number, data: TValdiatedUser) {
     let exists = await this.databaseService.select({ count: count() }).from(users).where(eq(users.id, id));
     if(!exists[0].count)
